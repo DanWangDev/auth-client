@@ -1,0 +1,64 @@
+import type { OidcMetadata } from '../types/auth-config.js'
+import { createLogger } from './logger.js'
+
+const logger = createLogger({ module: 'discovery' })
+
+interface CachedMetadata {
+  metadata: OidcMetadata
+  fetchedAt: number
+}
+
+const CACHE_TTL_MS = 60 * 60 * 1000 // 1 hour
+
+let cache: CachedMetadata | null = null
+
+/**
+ * Fetch and cache OIDC discovery metadata from the issuer.
+ * Caches for 1 hour; returns stale data if refresh fails.
+ */
+export async function discoverOidc(
+  issuer: string,
+  fetchFn: typeof fetch = fetch,
+): Promise<OidcMetadata> {
+  const now = Date.now()
+
+  if (cache && now - cache.fetchedAt < CACHE_TTL_MS) {
+    return cache.metadata
+  }
+
+  const url = `${issuer}/oidc/.well-known/openid-configuration`
+
+  try {
+    const response = await fetchFn(url)
+    if (!response.ok) {
+      throw new Error(`Discovery fetch failed: ${response.status} ${response.statusText}`)
+    }
+
+    const data = (await response.json()) as OidcMetadata
+    if (!data.authorization_endpoint || !data.token_endpoint || !data.jwks_uri) {
+      throw new Error('Invalid OIDC discovery response: missing required fields')
+    }
+
+    cache = { metadata: data, fetchedAt: now }
+    logger.info('OIDC metadata fetched', { issuer })
+    return data
+  } catch (error) {
+    // Return stale cache if available
+    if (cache) {
+      logger.warn('OIDC discovery refresh failed, using stale cache', {
+        issuer,
+        error: error instanceof Error ? error.message : String(error),
+        cacheAge: String(now - cache.fetchedAt),
+      })
+      return cache.metadata
+    }
+    throw error
+  }
+}
+
+/**
+ * Clear the discovery cache (useful for testing).
+ */
+export function clearDiscoveryCache(): void {
+  cache = null
+}
