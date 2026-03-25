@@ -25,7 +25,7 @@ export function createAuthRoutes(config: AuthServerConfig): Router {
   // GET /auth/login — redirect to hub authorization endpoint
   router.get(`${basePath}/login`, async (req: Request, res: Response) => {
     try {
-      const metadata = await discoverOidc(config.issuer)
+      const metadata = await discoverOidc(config.issuer, config.internalIssuer)
       const { url, code_verifier, state } = buildAuthorizationUrl(config, metadata)
 
       const session = await getSession(req, res, {
@@ -54,6 +54,14 @@ export function createAuthRoutes(config: AuthServerConfig): Router {
 
       if (error) {
         logger.warn('OIDC callback error', { error, error_description })
+
+        if (error === 'access_denied') {
+          const deniedUrl =
+            config.accessDeniedUrl ?? `${config.postLogoutRedirectUri}?error=access_denied`
+          res.redirect(deniedUrl)
+          return
+        }
+
         res.status(400).json({
           success: false,
           error: error_description ?? error,
@@ -86,7 +94,7 @@ export function createAuthRoutes(config: AuthServerConfig): Router {
         return
       }
 
-      const metadata = await discoverOidc(config.issuer)
+      const metadata = await discoverOidc(config.issuer, config.internalIssuer)
       const { tokens } = await exchangeCode(code, session.code_verifier, config, metadata)
 
       // Store tokens in session, clear PKCE state
@@ -120,7 +128,7 @@ export function createAuthRoutes(config: AuthServerConfig): Router {
 
       // If hub has an end_session_endpoint, redirect there
       try {
-        const metadata = await discoverOidc(config.issuer)
+        const metadata = await discoverOidc(config.issuer, config.internalIssuer)
         if (metadata.end_session_endpoint) {
           const params = new URLSearchParams({
             post_logout_redirect_uri: config.postLogoutRedirectUri,

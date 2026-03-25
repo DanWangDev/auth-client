@@ -15,7 +15,8 @@ export class JwtVerifier {
 
   constructor(config: JwtVerifierConfig) {
     this.issuer = config.issuer
-    const jwksUrl = new URL('/.well-known/jwks.json', config.issuer)
+    const jwksBase = config.internalIssuer ?? config.issuer
+    const jwksUrl = new URL('/.well-known/jwks.json', jwksBase)
 
     this.jwks = createRemoteJWKSet(jwksUrl, {
       cacheMaxAge: config.jwksCacheTtlMs ?? 10 * 60 * 1000,
@@ -38,6 +39,7 @@ export class JwtVerifier {
       plan: String(payload.plan ?? 'free'),
       features: Array.isArray(payload.features) ? payload.features.map(String) : [],
       apps: Array.isArray(payload.apps) ? payload.apps.map(String) : [],
+      expiresAt: typeof payload.expires_at === 'string' ? payload.expires_at : null,
       iat: typeof payload.iat === 'number' ? payload.iat : 0,
       exp: typeof payload.exp === 'number' ? payload.exp : 0,
     }

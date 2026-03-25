@@ -75,6 +75,24 @@ describe('discovery', () => {
     expect(result.authorization_endpoint).toBe('https://hub.labf.app/oidc/auth')
   })
 
+  it('uses internalIssuer for fetch URL when provided', async () => {
+    const mockFetch = createMockFetch()
+
+    await discoverOidc('https://hub.labf.app', 'http://app:3009', mockFetch)
+
+    expect(mockFetch).toHaveBeenCalledWith('http://app:3009/oidc/.well-known/openid-configuration')
+  })
+
+  it('falls back to issuer when internalIssuer is not provided', async () => {
+    const mockFetch = createMockFetch()
+
+    await discoverOidc('https://hub.labf.app', mockFetch)
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://hub.labf.app/oidc/.well-known/openid-configuration',
+    )
+  })
+
   it('throws on invalid metadata (missing required fields)', async () => {
     const mockFetch = createMockFetch({ issuer: 'https://hub.labf.app' })
 

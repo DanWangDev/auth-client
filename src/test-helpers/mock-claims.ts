@@ -15,6 +15,7 @@ export function mockHubClaims(overrides: Partial<HubTokenClaims> = {}): HubToken
     plan: 'free',
     features: [],
     apps: ['writing-buddy'],
+    expiresAt: null,
     iat: now,
     exp: now + 900,
     ...overrides,

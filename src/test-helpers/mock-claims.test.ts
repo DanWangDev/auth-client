@@ -13,6 +13,7 @@ describe('mockHubClaims', () => {
     expect(claims.plan).toBe('free')
     expect(claims.features).toEqual([])
     expect(claims.apps).toEqual(['writing-buddy'])
+    expect(claims.expiresAt).toBeNull()
     expect(claims.iat).toBeGreaterThan(0)
     expect(claims.exp).toBeGreaterThan(claims.iat)
   })
@@ -30,6 +31,12 @@ describe('mockHubClaims', () => {
     // Defaults preserved
     expect(claims.email).toBe('test@example.com')
     expect(claims.role).toBe('student')
+  })
+
+  it('allows overriding expiresAt', () => {
+    const claims = mockHubClaims({ expiresAt: '2026-12-31T23:59:59Z' })
+
+    expect(claims.expiresAt).toBe('2026-12-31T23:59:59Z')
   })
 
   it('produces immutable-looking claims', () => {

@@ -82,6 +82,7 @@ export async function exchangeCode(
       plan: 'free',
       features: [],
       apps: [],
+      expires_at: null,
     }
   }
 

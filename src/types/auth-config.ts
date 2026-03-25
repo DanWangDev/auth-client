@@ -4,6 +4,9 @@
 export interface AuthServerConfig {
   /** Hub OIDC issuer URL, e.g. "https://hub.labf.app" */
   readonly issuer: string
+  /** Internal URL for OIDC discovery/JWKS fetch in Docker networks.
+   *  Falls back to `issuer` if not provided. */
+  readonly internalIssuer?: string
   /** OIDC client ID registered in the hub */
   readonly clientId: string
   /** OIDC client secret */
@@ -20,6 +23,9 @@ export interface AuthServerConfig {
   readonly cookieName?: string
   /** Base path for auth routes (default: '/auth') */
   readonly basePath?: string
+  /** URL to redirect to when the hub denies access (entitlement check).
+   *  Defaults to `${postLogoutRedirectUri}?error=access_denied`. */
+  readonly accessDeniedUrl?: string
 }
 
 /**
@@ -38,6 +44,9 @@ export interface AuthClientConfig {
 export interface JwtVerifierConfig {
   /** Hub OIDC issuer URL, e.g. "https://hub.labf.app" */
   readonly issuer: string
+  /** Internal URL for JWKS fetch in Docker networks.
+   *  Falls back to `issuer` if not provided. */
+  readonly internalIssuer?: string
   /** OIDC client_id for this application */
   readonly clientId: string
   /** OIDC client_secret for this application */
