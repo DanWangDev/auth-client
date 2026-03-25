@@ -1,4 +1,4 @@
-# @labf/auth-client
+# @danwangdev/auth-client
 
 OIDC client SDK for authenticating with the [11plus-hub](https://github.com/DanWangDev/11plus-hub) identity provider.
 
@@ -10,25 +10,30 @@ Provides two auth patterns:
 ## Install
 
 ```bash
-npm install @labf/auth-client --registry=https://npm.pkg.github.com
+npm install @danwangdev/auth-client --registry=https://npm.pkg.github.com
 ```
 
 ## Entry Points
 
-| Entry Point                      | Environment | Purpose                                           |
-| -------------------------------- | ----------- | ------------------------------------------------- |
-| `@labf/auth-client/server`       | Node.js     | Express middleware, OIDC routes, JWT verification |
-| `@labf/auth-client/react`        | Browser     | React auth context, protected routes, auth fetch  |
-| `@labf/auth-client/types`        | Both        | Shared TypeScript types                           |
-| `@labf/auth-client/test-helpers` | Test        | Mock claims, test token generation                |
+| Entry Point                            | Environment | Purpose                                           |
+| -------------------------------------- | ----------- | ------------------------------------------------- |
+| `@danwangdev/auth-client/server`       | Node.js     | Express middleware, OIDC routes, JWT verification |
+| `@danwangdev/auth-client/react`        | Browser     | React auth context, protected routes, auth fetch  |
+| `@danwangdev/auth-client/types`        | Both        | Shared TypeScript types                           |
+| `@danwangdev/auth-client/test-helpers` | Test        | Mock claims, test token generation                |
 
 ## Server Usage
 
 ### Session-Based Auth (Full OIDC Flow)
 
 ```typescript
-import { createAuthRoutes, requireAuth, optionalAuth, discoverOidc } from '@labf/auth-client/server'
-import type { AuthServerConfig } from '@labf/auth-client/server'
+import {
+  createAuthRoutes,
+  requireAuth,
+  optionalAuth,
+  discoverOidc,
+} from '@danwangdev/auth-client/server'
+import type { AuthServerConfig } from '@danwangdev/auth-client/server'
 
 const config: AuthServerConfig = {
   issuer: process.env.HUB_URL,
@@ -52,8 +57,8 @@ app.get('/api/protected', requireAuth({ config, metadata }), (req, res) => {
 ### Bearer-Token Auth (JWT Verification)
 
 ```typescript
-import { JwtVerifier } from '@labf/auth-client/server'
-import type { JwtVerifierConfig } from '@labf/auth-client/types'
+import { JwtVerifier } from '@danwangdev/auth-client/server'
+import type { JwtVerifierConfig } from '@danwangdev/auth-client/types'
 
 const verifier = new JwtVerifier({
   issuer: process.env.HUB_URL,
@@ -71,7 +76,7 @@ const claims = await verifier.verify(token)
 ## React Usage
 
 ```tsx
-import { AuthProvider, useAuth, ProtectedRoute } from '@labf/auth-client/react'
+import { AuthProvider, useAuth, ProtectedRoute } from '@danwangdev/auth-client/react'
 
 function App() {
   return (
@@ -97,7 +102,7 @@ function Dashboard() {
 ### Auth-Aware Fetch
 
 ```typescript
-import { createAuthFetch } from '@labf/auth-client/react'
+import { createAuthFetch } from '@danwangdev/auth-client/react'
 
 const authFetch = createAuthFetch()
 // Automatically includes credentials and redirects to login on 401
@@ -142,7 +147,7 @@ Claims from JWT verification via `JwtVerifier`, includes timestamps:
 ## Testing
 
 ```typescript
-import { mockHubClaims } from '@labf/auth-client/test-helpers'
+import { mockHubClaims } from '@danwangdev/auth-client/test-helpers'
 
 const claims = mockHubClaims({ sub: '42', plan: 'writing' })
 ```
@@ -150,7 +155,7 @@ const claims = mockHubClaims({ sub: '42', plan: 'writing' })
 For integration tests that need signed JWTs:
 
 ```typescript
-import { generateTestKeyPair, signTestToken } from '@labf/auth-client/test-helpers'
+import { generateTestKeyPair, signTestToken } from '@danwangdev/auth-client/test-helpers'
 
 const keyPair = await generateTestKeyPair()
 const token = await signTestToken(keyPair, { sub: '42', plan: 'bundle' })
