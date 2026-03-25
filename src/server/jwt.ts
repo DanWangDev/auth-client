@@ -54,6 +54,7 @@ function extractUser(payload: Record<string, unknown>): HubUser {
     plan: String(payload.plan ?? 'free'),
     features: Array.isArray(payload.features) ? (payload.features as string[]) : [],
     apps: Array.isArray(payload.apps) ? (payload.apps as string[]) : [],
+    expires_at: typeof payload.expires_at === 'string' ? payload.expires_at : null,
   }
 }
 

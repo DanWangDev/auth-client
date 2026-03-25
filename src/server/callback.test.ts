@@ -22,6 +22,7 @@ vi.mock('./jwt.js', () => ({
     plan: 'bundle',
     features: ['writing', 'vocab'],
     apps: ['vocab-master'],
+    expires_at: '2026-12-31T23:59:59Z',
   }),
   decodeUser: vi.fn(),
 }))
@@ -106,6 +107,25 @@ describe('callback', () => {
     await expect(exchangeCode('bad_code', 'verifier', config, metadata, mockFetch)).rejects.toThrow(
       'Token exchange failed: 400',
     )
+  })
+
+  it('builds fallback user with expires_at null when no id_token', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          access_token: 'at_123',
+          token_type: 'Bearer',
+          expires_in: 900,
+        }),
+    })
+
+    const result = await exchangeCode('code', 'verifier', config, metadata, mockFetch)
+
+    expect(result.user.expires_at).toBeNull()
+    expect(result.user.sub).toBe('')
+    expect(result.user.role).toBe('student')
+    expect(result.user.plan).toBe('free')
   })
 
   it('throws if access_token is missing', async () => {

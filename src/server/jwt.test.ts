@@ -36,6 +36,51 @@ describe('jwt', () => {
       expect(user.plan).toBe('bundle')
       expect(user.features).toEqual(['writing', 'vocab'])
       expect(user.apps).toEqual(['vocab-master', 'writing-buddy'])
+      expect(user.expires_at).toBeNull()
+    })
+
+    it('extracts expires_at when present as ISO string', async () => {
+      const { privateKey } = await generateKeyPair('RS256', { extractable: true })
+
+      const token = await new SignJWT({
+        sub: '42',
+        username: 'emma',
+        display_name: 'Emma Wang',
+        email: 'emma@example.com',
+        email_verified: true,
+        role: 'student',
+        plan: 'bundle',
+        features: [],
+        apps: [],
+        expires_at: '2026-12-31T23:59:59Z',
+      })
+        .setProtectedHeader({ alg: 'RS256' })
+        .setIssuedAt()
+        .setIssuer('https://hub.labf.app')
+        .setAudience('test-client')
+        .setExpirationTime('1h')
+        .sign(privateKey)
+
+      const user = decodeUser(token)
+
+      expect(user.expires_at).toBe('2026-12-31T23:59:59Z')
+    })
+
+    it('returns null for expires_at when value is non-string', async () => {
+      const { privateKey } = await generateKeyPair('RS256', { extractable: true })
+
+      const token = await new SignJWT({
+        sub: '42',
+        expires_at: 12345,
+      })
+        .setProtectedHeader({ alg: 'RS256' })
+        .setIssuedAt()
+        .setExpirationTime('1h')
+        .sign(privateKey)
+
+      const user = decodeUser(token)
+
+      expect(user.expires_at).toBeNull()
     })
 
     it('handles missing optional claims with defaults', async () => {
@@ -58,6 +103,7 @@ describe('jwt', () => {
       expect(user.plan).toBe('free')
       expect(user.features).toEqual([])
       expect(user.apps).toEqual([])
+      expect(user.expires_at).toBeNull()
     })
   })
 })

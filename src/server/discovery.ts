@@ -18,15 +18,22 @@ let cache: CachedMetadata | null = null
  */
 export async function discoverOidc(
   issuer: string,
-  fetchFn: typeof fetch = fetch,
+  internalIssuerOrFetch?: string | typeof fetch,
+  fetchFnArg?: typeof fetch,
 ): Promise<OidcMetadata> {
+  const internalIssuer =
+    typeof internalIssuerOrFetch === 'string' ? internalIssuerOrFetch : undefined
+  const fetchFn =
+    typeof internalIssuerOrFetch === 'function' ? internalIssuerOrFetch : (fetchFnArg ?? fetch)
+
   const now = Date.now()
 
   if (cache && now - cache.fetchedAt < CACHE_TTL_MS) {
     return cache.metadata
   }
 
-  const url = `${issuer}/oidc/.well-known/openid-configuration`
+  const fetchBase = internalIssuer ?? issuer
+  const url = `${fetchBase}/oidc/.well-known/openid-configuration`
 
   try {
     const response = await fetchFn(url)

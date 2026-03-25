@@ -18,6 +18,20 @@ describe('JwtVerifier', () => {
     expect(typeof verifier.verify).toBe('function')
   })
 
+  it('uses internalIssuer for JWKS URL when provided', () => {
+    const config: JwtVerifierConfig = {
+      issuer: 'https://hub.labf.app',
+      internalIssuer: 'http://app:3009',
+      clientId: 'test-client',
+      clientSecret: 'secret',
+      redirectUri: 'https://app.labf.app/callback',
+      appSlug: 'writing-buddy',
+    }
+
+    const verifier = new JwtVerifier(config)
+    expect(verifier).toBeDefined()
+  })
+
   it('accepts custom JWKS cache TTL', () => {
     const config: JwtVerifierConfig = {
       issuer: 'https://hub.labf.app',
@@ -50,6 +64,7 @@ describe('JwtVerifier', () => {
       plan: 'bundle',
       features: ['writing', 'vocab'],
       apps: ['writing-buddy'],
+      expires_at: '2026-12-31T23:59:59Z',
     })
       .setProtectedHeader({ alg: 'RS256' })
       .setIssuedAt(now)

@@ -12,6 +12,8 @@ export interface HubUser {
   readonly plan: string
   readonly features: readonly string[]
   readonly apps: readonly string[]
+  /** ISO 8601 subscription expiry, or null if no expiry */
+  readonly expires_at: string | null
 }
 
 /**
@@ -38,6 +40,8 @@ export interface HubTokenClaims {
   readonly features: readonly string[]
   /** App slugs the user has access to */
   readonly apps: readonly string[]
+  /** ISO 8601 subscription expiry, or null if no expiry */
+  readonly expiresAt: string | null
   /** Issued-at timestamp (seconds) */
   readonly iat: number
   /** Expiration timestamp (seconds) */

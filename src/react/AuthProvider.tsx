@@ -7,6 +7,9 @@ export interface AuthContextValue {
   readonly user: HubUser | null
   readonly isAuthenticated: boolean
   readonly isLoading: boolean
+  readonly isAccessDenied: boolean
+  /** ISO 8601 subscription expiry from hub claims, or null */
+  readonly expiresAt: string | null
   login(returnTo?: string): void
   logout(): void
 }
@@ -22,6 +25,7 @@ export function AuthProvider({ config, children }: AuthProviderProps) {
   const basePath = config?.basePath ?? '/auth'
   const [user, setUser] = useState<HubUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [accessDenied, setAccessDenied] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -51,6 +55,16 @@ export function AuthProvider({ config, children }: AuthProviderProps) {
     }
   }, [basePath])
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('error') === 'access_denied') {
+      setAccessDenied(true)
+      const url = new URL(window.location.href)
+      url.searchParams.delete('error')
+      window.history.replaceState({}, '', url.toString())
+    }
+  }, [])
+
   const login = useCallback(
     (returnTo?: string) => {
       const params = returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ''
@@ -72,6 +86,8 @@ export function AuthProvider({ config, children }: AuthProviderProps) {
     user,
     isAuthenticated: user !== null,
     isLoading,
+    isAccessDenied: accessDenied,
+    expiresAt: user?.expires_at ?? null,
     login,
     logout,
   }
