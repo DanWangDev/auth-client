@@ -7,6 +7,9 @@ export { exchangeCode } from './callback.js'
 export { refreshAccessToken } from './token-refresh.js'
 export { getSession } from './session.js'
 
+// Bearer-token JWT verification
+export { JwtVerifier } from './jwt-verifier.js'
+
 // Middleware
 export { requireAuth, optionalAuth } from './middleware.js'
 
@@ -17,8 +20,13 @@ export { createAuthRoutes } from './routes.js'
 export { createLogger } from './logger.js'
 
 // Re-export types
-export type { AuthServerConfig, OidcMetadata } from '../types/auth-config.js'
-export type { HubUser } from '../types/hub-user.js'
+export type {
+  AuthServerConfig,
+  JwtVerifierConfig,
+  OidcMetadata,
+  OidcEndpoints,
+} from '../types/auth-config.js'
+export type { HubUser, HubTokenClaims } from '../types/hub-user.js'
 export type { TokenSet } from '../types/token-set.js'
 export type { PkceChallenge } from './pkce.js'
 export type { SessionData, SessionOptions } from './session.js'

@@ -1,3 +1,9 @@
-export type { HubUser } from './hub-user.js'
+export type { HubUser, HubTokenClaims } from './hub-user.js'
 export type { TokenSet } from './token-set.js'
-export type { AuthServerConfig, AuthClientConfig, OidcMetadata } from './auth-config.js'
+export type {
+  AuthServerConfig,
+  AuthClientConfig,
+  JwtVerifierConfig,
+  OidcMetadata,
+  OidcEndpoints,
+} from './auth-config.js'

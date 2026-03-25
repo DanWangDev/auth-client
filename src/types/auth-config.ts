@@ -31,6 +31,26 @@ export interface AuthClientConfig {
 }
 
 /**
+ * Configuration for Bearer-token JWT verification (non-session apps).
+ * Used by apps that verify hub JWTs directly rather than using
+ * session-based OIDC routes.
+ */
+export interface JwtVerifierConfig {
+  /** Hub OIDC issuer URL, e.g. "https://hub.labf.app" */
+  readonly issuer: string
+  /** OIDC client_id for this application */
+  readonly clientId: string
+  /** OIDC client_secret for this application */
+  readonly clientSecret: string
+  /** Where the hub redirects after login */
+  readonly redirectUri: string
+  /** App slug used for entitlement checks (e.g. "writing-buddy") */
+  readonly appSlug: string
+  /** JWKS cache TTL in milliseconds (default: 10 minutes) */
+  readonly jwksCacheTtlMs?: number
+}
+
+/**
  * OIDC discovery metadata (subset of fields we use).
  */
 export interface OidcMetadata {
@@ -40,4 +60,15 @@ export interface OidcMetadata {
   readonly userinfo_endpoint: string
   readonly jwks_uri: string
   readonly end_session_endpoint?: string
+}
+
+/**
+ * Manually constructed OIDC endpoints (for apps that don't use discovery).
+ */
+export interface OidcEndpoints {
+  readonly authorization: string
+  readonly token: string
+  readonly userinfo: string
+  readonly jwks: string
+  readonly endSession: string
 }

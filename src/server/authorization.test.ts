@@ -27,9 +27,7 @@ describe('authorization', () => {
     expect(url.origin + url.pathname).toBe('https://hub.labf.app/oidc/auth')
     expect(url.searchParams.get('response_type')).toBe('code')
     expect(url.searchParams.get('client_id')).toBe('vocab-master-client')
-    expect(url.searchParams.get('redirect_uri')).toBe(
-      'https://vocab-master.labf.app/auth/callback',
-    )
+    expect(url.searchParams.get('redirect_uri')).toBe('https://vocab-master.labf.app/auth/callback')
     expect(url.searchParams.get('code_challenge_method')).toBe('S256')
   })
 

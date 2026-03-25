@@ -18,6 +18,11 @@
       "types": "./dist/types/index.d.ts",
       "import": "./dist/types/index.js",
       "require": "./dist/types/index.cjs"
+    },
+    "./test-helpers": {
+      "types": "./dist/test-helpers/index.d.ts",
+      "import": "./dist/test-helpers/index.js",
+      "require": "./dist/test-helpers/index.cjs"
     }
   },
   "files": [
@@ -36,7 +41,7 @@
     "ci": "npm run lint && npm run format:check && npm run typecheck && npm run test:coverage && npm run build"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=24.0.0"
   },
   "dependencies": {
     "iron-session": "^8.0.4",
