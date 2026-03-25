@@ -15,8 +15,8 @@ npm install @danwangdev/auth-client --registry=https://npm.pkg.github.com
 
 ## Entry Points
 
-| Entry Point                      | Environment | Purpose                                           |
-| -------------------------------- | ----------- | ------------------------------------------------- |
+| Entry Point                            | Environment | Purpose                                           |
+| -------------------------------------- | ----------- | ------------------------------------------------- |
 | `@danwangdev/auth-client/server`       | Node.js     | Express middleware, OIDC routes, JWT verification |
 | `@danwangdev/auth-client/react`        | Browser     | React auth context, protected routes, auth fetch  |
 | `@danwangdev/auth-client/types`        | Both        | Shared TypeScript types                           |
@@ -27,7 +27,12 @@ npm install @danwangdev/auth-client --registry=https://npm.pkg.github.com
 ### Session-Based Auth (Full OIDC Flow)
 
 ```typescript
-import { createAuthRoutes, requireAuth, optionalAuth, discoverOidc } from '@danwangdev/auth-client/server'
+import {
+  createAuthRoutes,
+  requireAuth,
+  optionalAuth,
+  discoverOidc,
+} from '@danwangdev/auth-client/server'
 import type { AuthServerConfig } from '@danwangdev/auth-client/server'
 
 const config: AuthServerConfig = {
