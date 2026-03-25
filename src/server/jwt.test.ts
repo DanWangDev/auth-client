@@ -1,14 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { SignJWT, exportJWK, generateKeyPair } from 'jose'
+import { SignJWT, generateKeyPair } from 'jose'
 import { decodeUser } from './jwt.js'
 
 describe('jwt', () => {
   describe('decodeUser', () => {
     it('extracts user claims from a JWT', async () => {
       const { privateKey } = await generateKeyPair('RS256', { extractable: true })
-      const jwk = await exportJWK(privateKey)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const _jwk = jwk // just to generate a key for signing
 
       const token = await new SignJWT({
         sub: '42',

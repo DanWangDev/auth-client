@@ -87,12 +87,7 @@ export function createAuthRoutes(config: AuthServerConfig): Router {
       }
 
       const metadata = await discoverOidc(config.issuer)
-      const { tokens } = await exchangeCode(
-        code,
-        session.code_verifier,
-        config,
-        metadata,
-      )
+      const { tokens } = await exchangeCode(code, session.code_verifier, config, metadata)
 
       // Store tokens in session, clear PKCE state
       const returnTo = session.returnTo ?? '/'

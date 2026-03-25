@@ -5,6 +5,7 @@ export default defineConfig([
     entry: {
       'server/index': 'src/server/index.ts',
       'types/index': 'src/types/index.ts',
+      'test-helpers/index': 'src/test-helpers/index.ts',
     },
     format: ['esm', 'cjs'],
     dts: true,

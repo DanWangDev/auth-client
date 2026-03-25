@@ -103,9 +103,9 @@ describe('callback', () => {
       text: () => Promise.resolve('invalid_grant'),
     })
 
-    await expect(
-      exchangeCode('bad_code', 'verifier', config, metadata, mockFetch),
-    ).rejects.toThrow('Token exchange failed: 400')
+    await expect(exchangeCode('bad_code', 'verifier', config, metadata, mockFetch)).rejects.toThrow(
+      'Token exchange failed: 400',
+    )
   })
 
   it('throws if access_token is missing', async () => {
@@ -114,8 +114,8 @@ describe('callback', () => {
       json: () => Promise.resolve({ token_type: 'Bearer' }),
     })
 
-    await expect(
-      exchangeCode('code', 'verifier', config, metadata, mockFetch),
-    ).rejects.toThrow('Token response missing access_token')
+    await expect(exchangeCode('code', 'verifier', config, metadata, mockFetch)).rejects.toThrow(
+      'Token response missing access_token',
+    )
   })
 })
