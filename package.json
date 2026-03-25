@@ -1,5 +1,5 @@
 {
-  "name": "@labf/auth-client",
+  "name": "@danwangdev/auth-client",
   "version": "0.1.0",
   "description": "OIDC client SDK for 11plus Hub authentication",
   "type": "module",
