@@ -46,9 +46,26 @@ export async function discoverOidc(
       throw new Error('Invalid OIDC discovery response: missing required fields')
     }
 
-    cache = { metadata: data, fetchedAt: now }
+    // When internalIssuer differs from issuer, the discovered metadata URLs
+    // point to the internal hostname. Rewrite them:
+    //   - Browser-facing endpoints (authorization, end_session) → public issuer
+    //   - Server-to-server endpoints (token, jwks, userinfo) → internal issuer
+    const resolved: OidcMetadata =
+      internalIssuer && internalIssuer !== issuer
+        ? {
+            ...data,
+            // Browser-facing: ensure they use the public issuer URL
+            authorization_endpoint: data.authorization_endpoint.replace(internalIssuer, issuer),
+            end_session_endpoint: data.end_session_endpoint?.replace(internalIssuer, issuer),
+            // Server-to-server: ensure they use the internal issuer URL
+            token_endpoint: data.token_endpoint.replace(issuer, internalIssuer),
+            jwks_uri: data.jwks_uri.replace(issuer, internalIssuer),
+          }
+        : data
+
+    cache = { metadata: resolved, fetchedAt: now }
     logger.info('OIDC metadata fetched', { issuer })
-    return data
+    return resolved
   } catch (error) {
     // Return stale cache if available
     if (cache) {
