@@ -26,6 +26,10 @@ export interface AuthServerConfig {
   /** URL to redirect to when the hub denies access (entitlement check).
    *  Defaults to `${postLogoutRedirectUri}?error=access_denied`. */
   readonly accessDeniedUrl?: string
+  /** Enable back-channel logout endpoint.
+   *  When true, adds POST {basePath}/backchannel-logout route.
+   *  Default: false */
+  readonly backchannelLogout?: boolean
 }
 
 /**
@@ -69,6 +73,8 @@ export interface OidcMetadata {
   readonly userinfo_endpoint: string
   readonly jwks_uri: string
   readonly end_session_endpoint?: string
+  readonly backchannel_logout_supported?: boolean
+  readonly backchannel_logout_session_supported?: boolean
 }
 
 /**
