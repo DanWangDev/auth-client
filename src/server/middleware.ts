@@ -4,6 +4,7 @@ import type { HubUser } from '../types/hub-user.js'
 import { getSession } from './session.js'
 import { decodeUser } from './jwt.js'
 import { refreshAccessToken } from './token-refresh.js'
+import { isRevoked } from './revocation-registry.js'
 import { createLogger } from './logger.js'
 
 const logger = createLogger({ module: 'middleware' })
@@ -64,6 +65,14 @@ export function requireAuth({ config, metadata }: MiddlewareOptions) {
         req.user = decodeUser(session.tokens.id_token)
       }
 
+      // Check if user was revoked via back-channel logout
+      if (req.user && isRevoked(req.user.sub)) {
+        logger.info('session revoked via back-channel logout', { sub: req.user.sub })
+        session.destroy()
+        res.status(401).json({ success: false, error: 'Session revoked' })
+        return
+      }
+
       next()
     } catch (error) {
       logger.error('auth middleware error', {
@@ -103,6 +112,13 @@ export function optionalAuth({ config, metadata }: MiddlewareOptions) {
 
         if (session.tokens.id_token) {
           req.user = decodeUser(session.tokens.id_token)
+        }
+
+        // Check if user was revoked via back-channel logout
+        if (req.user && isRevoked(req.user.sub)) {
+          logger.info('session revoked via back-channel logout', { sub: req.user.sub })
+          session.destroy()
+          req.user = undefined
         }
       }
     } catch {

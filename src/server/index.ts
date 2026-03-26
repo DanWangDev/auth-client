@@ -10,6 +10,15 @@ export { getSession } from './session.js'
 // Bearer-token JWT verification
 export { JwtVerifier } from './jwt-verifier.js'
 
+// Back-channel logout
+export {
+  revokeSubject,
+  isRevoked,
+  unrevokeSubject,
+  clearRevocations,
+} from './revocation-registry.js'
+export { verifyLogoutToken, createBackchannelLogoutHandler } from './backchannel-logout.js'
+
 // Middleware
 export { requireAuth, optionalAuth } from './middleware.js'
 

@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import { Router, urlencoded } from 'express'
 import type { Request, Response } from 'express'
 import type { AuthServerConfig } from '../types/auth-config.js'
 import { discoverOidc } from './discovery.js'
@@ -7,6 +7,8 @@ import { exchangeCode } from './callback.js'
 import { getSession } from './session.js'
 import { decodeUser } from './jwt.js'
 import { createLogger } from './logger.js'
+import { isRevoked, unrevokeSubject } from './revocation-registry.js'
+import { createBackchannelLogoutHandler } from './backchannel-logout.js'
 
 const logger = createLogger({ module: 'routes' })
 
@@ -105,6 +107,14 @@ export function createAuthRoutes(config: AuthServerConfig): Router {
       session.returnTo = undefined
       await session.save()
 
+      // Clear any prior revocation for this user (re-login after BCL)
+      if (tokens.id_token) {
+        const user = decodeUser(tokens.id_token)
+        if (user.sub) {
+          unrevokeSubject(user.sub)
+        }
+      }
+
       logger.info('OIDC callback successful')
       res.redirect(returnTo)
     } catch (error) {
@@ -167,6 +177,13 @@ export function createAuthRoutes(config: AuthServerConfig): Router {
       }
 
       const user = decodeUser(session.tokens.id_token)
+
+      if (isRevoked(user.sub)) {
+        session.destroy()
+        res.status(401).json({ success: false, error: 'Not authenticated' })
+        return
+      }
+
       res.json({ success: true, data: user })
     } catch (error) {
       logger.error('get user failed', {
@@ -175,6 +192,18 @@ export function createAuthRoutes(config: AuthServerConfig): Router {
       res.status(401).json({ success: false, error: 'Not authenticated' })
     }
   })
+
+  // POST /auth/backchannel-logout — receive back-channel logout from hub
+  if (config.backchannelLogout) {
+    router.post(
+      `${basePath}/backchannel-logout`,
+      urlencoded({ extended: false }),
+      createBackchannelLogoutHandler(config),
+    )
+    logger.info('back-channel logout endpoint enabled', {
+      path: `${basePath}/backchannel-logout`,
+    })
+  }
 
   return router
 }

@@ -7,7 +7,7 @@ const jwksSets = new Map<string, JWTVerifyGetKey>()
 /**
  * Get or create a cached JWKS key set for the given URI.
  */
-function getJwks(jwksUri: string): JWTVerifyGetKey {
+export function getJwks(jwksUri: string): JWTVerifyGetKey {
   let jwks = jwksSets.get(jwksUri)
   if (!jwks) {
     jwks = createRemoteJWKSet(new URL(jwksUri))
